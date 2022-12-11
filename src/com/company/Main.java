@@ -52,38 +52,66 @@ public class Main {
         }
 //   client.close();
         printTimeDetails(fileTime, num);
+        client.close();
+        writeToServe.close();
 //        input.close();
 //        writeToServe.close();
     }
     static void sendFile(String path, Socket socket) throws Exception {
 
-        File file = new File(path);
-        FileInputStream fis = new FileInputStream(file);
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        //Get socket's output stream
-        OutputStream os = socket.getOutputStream();
-//        writeToServe.writeUTF(path+"\n");
-        //Read File Contents into contents array
-        byte[] contents;
-        long fileLength = file.length();
-        long current = 0;
-        long start = System.nanoTime();
-        while (current != fileLength) {
-            int size = 10000;
-            if (fileLength - current >= size)
-                current += size;
-            else {
-                size = (int) (fileLength - current);
-                current = fileLength;
-            }
-            contents = new byte[size];
-            bis.read(contents, 0, size);
-            writeToServe.writeBytes("\nExit\n");
-            os.write(contents);
-            System.out.print("Sending file ... "+(current*100));
-        }
-        os.flush();
+//        File file = new File(path);
+//        FileInputStream fis = new FileInputStream(file);
+//        BufferedInputStream bis = new BufferedInputStream(fis);
+//        //Get socket's output stream
+//        OutputStream os = socket.getOutputStream();
+////        writeToServe.writeUTF(path+"\n");
+//        //Read File Contents into contents array
+//        byte[] contents;
+//        long fileLength = file.length();
+//        long current = 0;
+//        long start = System.nanoTime();
+//        while (current != fileLength) {
+//            int size = 10000;
+//            if (fileLength - current >= size)
+//                current += size;
+//            else {
+//                size = (int) (fileLength - current);
+//                current = fileLength;
+//            }
+//            contents = new byte[size];
+//            bis.read(contents, 0, size);
+//            os.write(contents);
+//            writeToServe.writeBytes("\nExit\n");
+//            System.out.print("Sending file ... "+(current*100));
+//        }
+//        os.flush();
+        System.out.println("Ready to send file");
+        FileInputStream fis=null;
+        BufferedInputStream bis=null;
+        OutputStream os = null;
+        try {
+            // send file
+            File myFile = new File (path);
 
+            byte [] mybytearray  = new byte [(int)myFile.length()];
+
+            fis = new FileInputStream(myFile);
+
+            bis = new BufferedInputStream(fis);
+            bis.read(mybytearray,0,mybytearray.length);
+            os = socket.getOutputStream();
+//            System.out.println("Sending " + filename + "(" + mybytearray.length + " bytes)");
+            os.write(mybytearray,0,mybytearray.length);
+            os.flush();
+            System.out.println("File Sent.");
+
+        }
+        finally {
+            if (bis != null) bis.close();
+            if (os != null) os.close();
+            if (fis != null) fis.close();
+            if (socket!=null) socket.close();
+        }
     }
     static void printTimeDetails(Map<String, Long> fileTime, int num) {
         for (Map.Entry<String, Long> me :
